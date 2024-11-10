@@ -3,8 +3,8 @@ const gzip = std.compress.gzip;
 
 const testString = 
     \\{
-    \\    "D:\\Documents\\Github\\Gaskam\\temp-folder-tool\\APP\\Temp Folder": {
-    \\        "abc": 123,
+    \\    "8e278ebd-5cd3-48f5-b271-074cea825d6c": {
+    \\         "abc": 123,
     \\         "def": 456,
     \\         "ghi": 789
     \\    }

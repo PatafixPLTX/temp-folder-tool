@@ -9,7 +9,7 @@ const FolderConfig = struct {
 };
 
 const Config = struct {
-    tempFolders: []FolderConfig
+    tempFolders: std.json.ArrayHashMap(FolderConfig)
 };
 
 const CustomRetentions = std.json.ArrayHashMap(
@@ -100,7 +100,6 @@ fn nsToSeconds(ns: i128) u32 {
 // Fonction wich crawl the temp folder and check the date of the files.
 // If the date of the last access of a file is greater than the number of days chosen by the user, the file is deleted.
 fn checkFilesDate(tempFolderPath: []const u8, retentionPeriod: u32, custom_retentions: ?std.json.ArrayHashMap(u32)) !u32 {
-    std.debug.print("{s}\n", .{tempFolderPath});
     var iter_dir = try std.fs.openDirAbsolute(tempFolderPath, .{ .iterate = true });
     defer iter_dir.close();
 
@@ -169,7 +168,7 @@ pub fn main() !noreturn {
     defer parsed.deinit();
     const config = parsed.value;
 
-    for (config.tempFolders) |tempFolder| {
+    for (config.tempFolders.map.values()) |tempFolder| {
         if (tempFolder.retention == 0) {
             std.debug.print("The retention period can't be 0.\n", .{});
             std.process.exit(1);
@@ -192,10 +191,11 @@ pub fn main() !noreturn {
         // Call the function checkFilesDate to check the date of the files in the temp folder and delete them if they are too old.
         var timeLeft: u32 = std.math.maxInt(u32);
 
-        for (config.tempFolders) |tempFolder| {
+        for (config.tempFolders.map.keys()) |tempFolderId| {
+            const tempFolder = config.tempFolders.map.get(tempFolderId).?;
             timeLeft = @min(
                 timeLeft, 
-                try checkFilesDate(tempFolder.path, tempFolder.retention, custom_retentions.get(tempFolder.path))
+                try checkFilesDate(tempFolder.path, tempFolder.retention, custom_retentions.get(tempFolderId))
             );
         }
 

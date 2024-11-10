@@ -1,13 +1,14 @@
 {
-    "tempFolders": [
-        {
-            "path": "C:\\Users\\Patafix\\Desktop\\GitHub\\Gaskam\\temp-folder-tool\\APP\\Temp Folder",
+    "tempFolders": {
+        "8e278ebd-5cd3-48f5-b271-074cea825d6c": {
+            "path": "D:\\Documents\\Github\\Gaskam\\temp-folder-tool\\APP\\Temp Folder",
             "retention": 60,
-            "name": "Kamil?"
+            "name": "testtt"
         },
-        {
-            "path": "C:\\Users\\Patafix\\Desktop\\GitHub\\Gaskam\\temp-folder-tool\\APP\\Temp Folder 2",
-            "retention": 30
+        "0d880b7b-0f1a-4fb2-b1ce-1878cf54d297": {
+            "path": "D:\\Documents\\Github\\Gaskam\\temp-folder-tool\\APP\\Temp Folder 2",
+            "retention": 30,
+            "name": "Folder number 2"
         }
-    ]
+    }
 }

@@ -21,10 +21,11 @@ $(function () {
     initFolders();
 });
 
-swup.hooks.on('page:view', () => {
+swup.hooks.on("page:view", () => {
     // This runs after every page change by swup
+    console.log("Page view");
     if (location.pathname.endsWith("/index.html")) {
-        initFolders();
+        getFolders();
     }
 });
 
@@ -32,25 +33,37 @@ let updateFoldersBridge = () => {};
 let config = {
     tempFolders: [],
 };
-  
 
 function initFolders() {
     // DOM is loaded. Check if `webui` object is available
     if (typeof webui !== "undefined") {
         // Set events callback
-        webui.setEventCallback(async (e) => {
+        webui.setEventCallback((e) => {
             if (e == webui.event.CONNECTED) {
                 // Connection to the backend is established
                 // Do something
-                updateFoldersBridge = update_folders;
-                console.log("Connected to the backend");
-                const result = await update_folders();
-                const folders = JSON.parse(result);
-                config = folders;
-                const folderContainer = document.getElementById("elements");
-                folders["tempFolders"].forEach((folder) => {
-                    var template = document.createElement("template");
-                    template.innerHTML = `<div class="element">
+                console.log("Connected");
+                getFolders();
+            } else if (e == webui.event.DISCONNECTED) {
+                // Connection to the backend is lost
+                // window.close();
+            }
+        });
+    }
+}
+
+async function getFolders() {
+    if (!webui.isConnected()) return;
+    updateFoldersBridge = update_folders;
+    console.log("Connected to the backend");
+    const result = await update_folders();
+    const folders = JSON.parse(result);
+    config = folders;
+    const folderContainer = document.getElementById("elements");
+    folderContainer.innerHTML = "";
+    folders["tempFolders"].forEach((folder) => {
+        var template = document.createElement("template");
+        template.innerHTML = `<div class="element">
                         <div class="time">
                             <textarea id="time" maxlength="5" readonly>${formatTime(
                                 folder.retention
@@ -72,21 +85,15 @@ function initFolders() {
                             <button class="toggle"><img src="img/more.svg"></button>
                             <div class="menu">
                                 <button id="open">Open in explorer</button>
-                                <button id="edit">Edit</button>
+                                <button id="edit" href="edit.html">Edit</button>
                                 <button class="delete" id="delete">
                                     Delete
                                 </button>
                             </div>
                         </div>
                     </div>`;
-                    folderContainer.appendChild(template.content.firstChild);
-                });
-                // Add event listeners
-                elementsEvents();
-            } else if (e == webui.event.DISCONNECTED) {
-                // Connection to the backend is lost
-                // window.close();
-            }
-        });
-    }
+        folderContainer.appendChild(template.content.firstChild);
+    });
+    // Add event listeners
+    elementsEvents();
 }

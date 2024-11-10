@@ -39,12 +39,12 @@ function searchContains(element, value) {
 }
 
 function sidebarEvents() {
-    var $navbar = $("body sidebar");
-    var $root = $(":root");
+    const $navbar = $("body sidebar");
+    const $root = $(":root");
 
     if ($navbar.length) {
         function updateNavbarWidth() {
-            var navbarWidth = $navbar.outerWidth() + "px";
+            const navbarWidth = $navbar.outerWidth() + "px";
             $root.css("--navbar-width", navbarWidth);
         }
 
@@ -125,11 +125,8 @@ function pageEvents() {
     $("#save").on("click", function () {
         changes.forEach((name, path) => {
             if (path !== "C:/User/Documents/Je suis nul en code/Temp Folder") {
-                console.log(path, config["tempFolders"].filter((folder) => folder.path === path));
                 config["tempFolders"].filter((folder) => folder.path === path)[0].name = name;
-                console.log(config["tempFolders"].filter((folder) => folder.path === path));
             }
-            localStorage.setItem(name, path);
         });
         if (change_config) change_config(JSON.stringify(config));
         changes.clear();
@@ -148,7 +145,7 @@ function pageEvents() {
                 .children(".name")
                 .children()
                 .first()
-                .val(localStorage.getItem(path) || genName(path));
+                .val(config["tempFolders"].filter((folder) => folder.path === path)[0].name || genName(path));
         });
         updateSaveButton();
     });
@@ -179,7 +176,7 @@ function elementsEvents() {
         .on("input", function () {
             const path = $(this).parent().next().children().val();
             const name = $(this).val();
-            if (localStorage.getItem(path || "") !== name)
+            if (config["tempFolders"].filter((folder) => folder.path === path)[0].name !== name)
                 changes.set(path, name);
             else changes.delete(path);
 
