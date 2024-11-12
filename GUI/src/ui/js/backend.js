@@ -1,11 +1,7 @@
-function getName(path) {
-    const folder = config.tempFolders.find((folder) => folder.path === path);
-    if (folder.name !== undefined) return folder.name;
-    const item = localStorage.getItem(path);
-    if (item !== null) return item;
-    const value = genName(path);
-    localStorage.setItem(path, value);
-    return value;
+function getName(id) {
+    const folder = config[id];
+    if (folder?.name !== undefined) return folder.name;
+    return genName(folder?.path);
 }
 
 function formatTime(time) {
@@ -23,16 +19,13 @@ $(function () {
 
 swup.hooks.on("page:view", () => {
     // This runs after every page change by swup
-    console.log("Page view");
     if (location.pathname.endsWith("/index.html")) {
         getFolders();
     }
 });
 
-let updateFoldersBridge = () => {};
-let config = {
-    tempFolders: [],
-};
+let config = [];
+let full_config = {};
 
 function initFolders() {
     // DOM is loaded. Check if `webui` object is available
@@ -46,7 +39,7 @@ function initFolders() {
                 getFolders();
             } else if (e == webui.event.DISCONNECTED) {
                 // Connection to the backend is lost
-                // window.close();
+                window.close();
             }
         });
     }
@@ -54,16 +47,16 @@ function initFolders() {
 
 async function getFolders() {
     if (!webui.isConnected()) return;
-    updateFoldersBridge = update_folders;
     console.log("Connected to the backend");
     const result = await update_folders();
     const folders = JSON.parse(result);
-    config = folders;
+    full_config = folders;
+    config = folders["tempFolders"];
     const folderContainer = document.getElementById("elements");
     folderContainer.innerHTML = "";
-    folders["tempFolders"].forEach((folder) => {
+    Object.entries(folders["tempFolders"]).forEach(([id, folder]) => {
         var template = document.createElement("template");
-        template.innerHTML = `<div class="element">
+        template.innerHTML = `<div class="element" id="${id}">
                         <div class="time">
                             <textarea id="time" maxlength="5" readonly>${formatTime(
                                 folder.retention
@@ -72,7 +65,7 @@ async function getFolders() {
                         <div class="infos">
                             <div class="name">
                                 <textarea id="name" maxlength="40">${getName(
-                                    folder.path
+                                    id
                                 )}</textarea>
                             </div>
                             <div class="path">

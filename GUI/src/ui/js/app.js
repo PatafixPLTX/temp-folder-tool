@@ -15,7 +15,7 @@ swup.hooks.on("page:view", () => {
 function genName(path) {
     return (/[\/\\]([^\/\\]*)[\/\\]{0,1}$/d.exec(path) || [
         null,
-        "Folder unreadable",
+        "Unable to gen default name",
     ])[1];
 }
 
@@ -123,12 +123,11 @@ function pageEvents() {
     });
 
     $("#save").on("click", function () {
-        changes.forEach((name, path) => {
-            if (path !== "C:/User/Documents/Je suis nul en code/Temp Folder") {
-                config["tempFolders"].filter((folder) => folder.path === path)[0].name = name;
-            }
+        changes.forEach((name, id) => {
+            config[id].name = name;
         });
-        if (change_config) change_config(JSON.stringify(config));
+        full_config.tempFolders = config;
+        if (change_config) change_config(JSON.stringify(full_config));
         changes.clear();
 
         updateSaveButton();
@@ -139,13 +138,12 @@ function pageEvents() {
 
         $(".element").each((_, element) => {
             const $element = $(element).children(".infos");
-            const path =
-                $element.children(".path").children().first().val() || "";
+            const folderData = config[$(element).id];
             $element
                 .children(".name")
                 .children()
                 .first()
-                .val(config["tempFolders"].filter((folder) => folder.path === path)[0].name || genName(path));
+                .val(folderData.name || genName(folderData.path));
         });
         updateSaveButton();
     });
@@ -176,7 +174,7 @@ function elementsEvents() {
         .on("input", function () {
             const path = $(this).parent().next().children().val();
             const name = $(this).val();
-            if (config["tempFolders"].filter((folder) => folder.path === path)[0].name !== name)
+            if (config[id].name !== name)
                 changes.set(path, name);
             else changes.delete(path);
 
